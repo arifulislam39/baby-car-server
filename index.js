@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
 
     const carCollection = client.db("carDB").collection("carInfo");
 
@@ -127,10 +127,10 @@ async function run() {
     //search by toy name
     app.get("/searchByToyName/:text", async (req, res) => {
       const searchName = req.params.text;
-      const query = { toy_name: { $regex: searchName, $options: 'i' } };
+      const query = { toy_name: { $regex: searchName, $options: "i" } };
       const result = await carCollection.find(query).toArray();
-        res.send(result)
-        console.log(result);
+      res.send(result);
+      console.log(result);
     });
 
     // Send a ping to confirm a successful connection
