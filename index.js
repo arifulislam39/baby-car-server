@@ -44,23 +44,43 @@ async function run() {
       res.send(result);
     });
 
+    //single data by id
+    app.get("/allToy/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+
+      const result = await carCollection.findOne(query);
+
+      res.send(result);
+      console.log(result);
+    });
+
     //get My Toys
-    app.get("/myToys/:email", async (req, res) => {
+    app.get("/allToys/:email", async (req, res) => {
       console.log(req.params.email);
       const result = await carCollection
-        .find({ seller_email: req.params.email })
+        .find({seller_email: req.params.email })
         .toArray();
       res.send(result);
     });
 
-    //get single data by id
-    app.get("/allToys/:id", async (req, res) => {
+    //deleted single data from my toys
+    app.delete("/myToys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await carCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //get some data by id for update to my page
+    app.get("/myToys/:id", async (req, res) => {
       const id = req.params.id;
       console.log(id);
       const query = { _id: new ObjectId(id) };
 
       const options = {
-        projection: { price: 1, quantity: 1, description: 1 },
+        projection: { price: 1, quantity: 1, description: 1, _id: 1 },
       };
 
       const result = await carCollection.findOne(query, options);
@@ -68,15 +88,31 @@ async function run() {
       res.send(result);
     });
 
+    // app.get("/allToys", async (req, res) => {
+    //   console.log(req, query.sub_category);
+    //   let query = {};
+    //   if (req.query?.sub_category) {
+    //     const query = { category: (req.query.sub_category = "car") };
+    //   }
+    //   const result = await carCollection.find(query).toArray();
+    //   console.log(result);
+    //   res.send(result);
+    // });
 
 
-    //deleted single data from my toys
-    app.delete("/allToys/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await carCollection.deleteOne(query);
-      res.send(result);
-    });
+
+    // app.get("/allToys/:category", async (req, res) => {
+    //   console.log(req.params.sub_category);
+    //   const jobs = await jobsCollection
+    //     .find({
+    //       status: req.params.sub_category,
+    //     })
+    //     .toArray();
+    //   res.send(jobs);
+    //   console.log(jobs);
+    // });
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
