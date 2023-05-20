@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 require("dotenv").config();
 
@@ -35,6 +35,46 @@ async function run() {
       const body = req.body;
       const result = await carCollection.insertOne(body);
       console.log(result);
+      res.send(result);
+    });
+
+    //Get all cars from database
+    app.get("/allToys", async (req, res) => {
+      const result = await carCollection.find({}).limit(20).toArray();
+      res.send(result);
+    });
+
+    //get My Toys
+    app.get("/myToys/:email", async (req, res) => {
+      console.log(req.params.email);
+      const result = await carCollection
+        .find({ seller_email: req.params.email })
+        .toArray();
+      res.send(result);
+    });
+
+    //get single data by id
+    app.get("/allToys/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+
+      const options = {
+        projection: { price: 1, quantity: 1, description: 1 },
+      };
+
+      const result = await carCollection.findOne(query, options);
+      console.log(result);
+      res.send(result);
+    });
+
+
+
+    //deleted single data from my toys
+    app.delete("/allToys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await carCollection.deleteOne(query);
       res.send(result);
     });
 
