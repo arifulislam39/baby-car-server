@@ -60,8 +60,25 @@ async function run() {
     app.get("/allToys/:email", async (req, res) => {
       console.log(req.params.email);
       const result = await carCollection
-        .find({seller_email: req.params.email })
+        .find({ seller_email: req.params.email })
         .toArray();
+      res.send(result);
+    });
+
+    //update data from my toy page
+    app.put("/updateData/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const body = req.body;
+      console.log(body);
+      const updateDoc = {
+        $set: {
+          price: body.price,
+          quantity: body.quantity,
+          description: body.description,
+        },
+      };
+      const result = await carCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
@@ -88,31 +105,33 @@ async function run() {
       res.send(result);
     });
 
-    // app.get("/allToys", async (req, res) => {
-    //   console.log(req, query.sub_category);
-    //   let query = {};
-    //   if (req.query?.sub_category) {
-    //     const query = { category: (req.query.sub_category = "car") };
-    //   }
-    //   const result = await carCollection.find(query).toArray();
-    //   console.log(result);
-    //   res.send(result);
-    // });
+    //Sub_category items
+    app.get("/category/:text", async (req, res) => {
+      console.log(req.params.text);
+      if (
+        req.params.text == "car" ||
+        req.params.text == "truck" ||
+        req.params.text == "jeep"
+      ) {
+        const result = await carCollection
+          .find({
+            sub_category: req.params.text,
+          })
+          .limit(6)
+          .toArray();
+        console.log(result);
+        return res.send(result);
+      }
+    });
 
-
-
-    // app.get("/allToys/:category", async (req, res) => {
-    //   console.log(req.params.sub_category);
-    //   const jobs = await jobsCollection
-    //     .find({
-    //       status: req.params.sub_category,
-    //     })
-    //     .toArray();
-    //   res.send(jobs);
-    //   console.log(jobs);
-    // });
-
-
+    //search by toy name
+    app.get("/searchByToyName/:text", async (req, res) => {
+      const searchName = req.params.text;
+      const query = { toy_name: { $regex: searchName, $options: 'i' } };
+      const result = await carCollection.find(query).toArray();
+        res.send(result)
+        console.log(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
